@@ -1,3 +1,18 @@
+from django.db.models import Prefetch
 from django.shortcuts import render
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
-# Create your views here.
+from clients.models import Client
+from services.models import Subscription
+from services.serializers import SubscriptionSerializer
+
+
+class SubscriptionView(ReadOnlyModelViewSet):
+    # Достаём все поля.
+    # queryset = Subscription.objects.all().prefetch_related('client').prefetch_related('client__user')
+
+    # Оптимизируем. Только нужные поля получаем.
+    queryset = Subscription.objects.all().prefetch_related(
+        Prefetch('client', queryset=Client.objects.all().select_related('user').only('company_name', 'user__email')))
+
+    serializer_class = SubscriptionSerializer
