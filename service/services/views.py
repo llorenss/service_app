@@ -22,8 +22,20 @@ class SubscriptionView(ReadOnlyModelViewSet):
     #     Prefetch('client', queryset=Client.objects.all().select_related('user').only('company_name', 'user__email')))
 
     # Оптимизируем. Только нужные поля получаем. C учётом PlanSerializer
+    # Использовали class Prefetch
+    # queryset = Subscription.objects.all().prefetch_related(
+    #     'plan',
+    #     Prefetch('client', queryset=Client.objects.all().select_related('user').only('company_name', 'user__email')))
+
+    # Делаем вычисления прям в бд. Мето .annotate()
     queryset = Subscription.objects.all().prefetch_related(
-        'plan',
-        Prefetch('client', queryset=Client.objects.all().select_related('user').only('company_name', 'user__email')))
+        "plan",
+        Prefetch(
+            "client",
+            queryset=Client.objects.all()
+            .select_related("user")
+            .only("company_name", "user__email"),
+        ),
+    )
 
     serializer_class = SubscriptionSerializer

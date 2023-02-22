@@ -5,7 +5,7 @@ docker-compose run --rm web-app sh -c "django-admin startproject service ."
 sh -c команда запускается при помощи линукс шела
  . пробел точка создаёт проект в текущей директории, в которой проект запускается
 
-
+black --line-length=79 ./
 docker-compose up
 
 http://127.0.0.1:8000/admin/
