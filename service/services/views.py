@@ -1,4 +1,4 @@
-from django.db.models import Prefetch, F
+from django.db.models import Prefetch, F, Sum
 from django.shortcuts import render
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -47,3 +47,33 @@ class SubscriptionView(ReadOnlyModelViewSet):
     )
 
     serializer_class = SubscriptionSerializer
+
+    # Переопределяем метод вью и формируется новый ответ клиенту.
+    # вот этот вариант ничего не помняет.
+    # def list(self, request, *args, **kwargs):
+    #     response = super().list(request, *args, **kwargs)
+    #     return response
+
+    # меняем всю структуру отдаваемых данных
+    # крайне не рекомендуется, без острой необходимости.
+    # со всеми (фронт, апи пользователи) согласуется.
+    # def list(self, request, *args, **kwargs):
+    #     response = super().list(request, *args, **kwargs)
+    #
+    #     response_data = {"result": response.data}
+    #     response.data = response_data
+    #     return response
+
+    # Зачем всё это?
+    # Чтобы к result добавить данных
+    # Агрегация - суммарная инфо по всем записям sql
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset((self.get_queryset()))
+        response = super().list(request, *args, **kwargs)
+
+        response_data = {"result": response.data}
+        response_data["total_amount"] = queryset.aggregate(
+            total=Sum("price")
+        ).get("total")
+        response.data = response_data
+        return response
