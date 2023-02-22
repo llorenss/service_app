@@ -21,9 +21,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_price(self, instance):
         # instance - конкретная модель подписки, которую будет обрабатывать
         # api все модели показывает
-        return instance.service.full_price - instance.service.full_price * (
-            instance.plan.discount_percent / 100
-        )
+        # return instance.service.full_price - instance.service.full_price * (
+        #     instance.plan.discount_percent / 100
+        # )
+
+        # .annotate()
+        return instance.price
 
     class Meta:
         model = Subscription

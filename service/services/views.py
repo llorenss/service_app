@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F
 from django.shortcuts import render
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -28,14 +28,22 @@ class SubscriptionView(ReadOnlyModelViewSet):
     #     Prefetch('client', queryset=Client.objects.all().select_related('user').only('company_name', 'user__email')))
 
     # Делаем вычисления прям в бд. Мето .annotate()
-    queryset = Subscription.objects.all().prefetch_related(
-        "plan",
-        Prefetch(
-            "client",
-            queryset=Client.objects.all()
-            .select_related("user")
-            .only("company_name", "user__email"),
-        ),
+    # .F() - функция с помощью которой обращаемся к одной из полей бд
+    queryset = (
+        Subscription.objects.all()
+        .prefetch_related(
+            "plan",
+            Prefetch(
+                "client",
+                queryset=Client.objects.all()
+                .select_related("user")
+                .only("company_name", "user__email"),
+            ),
+        )
+        .annotate(
+            price=F("service__full_price")
+            - F("service__full_price") * F("plan__discount_percent") / 100.00
+        )
     )
 
     serializer_class = SubscriptionSerializer
