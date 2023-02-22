@@ -77,3 +77,5 @@ class SubscriptionView(ReadOnlyModelViewSet):
         ).get("total")
         response.data = response_data
         return response
+
+    # Урок 4 завершён
