@@ -2,14 +2,13 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 
 from clients.models import Client
-from services.tasks import set_price
+from services.tasks import set_price, set_comment
 
 
 class Service(models.Model):
     name = models.CharField(max_length=50)
     full_price = models.PositiveIntegerField()
 
-    # correct for long save
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__full_price__ = self.full_price
@@ -18,6 +17,7 @@ class Service(models.Model):
         if self.full_price != self.__full_price__:
             for subscription in self.subscriptions.all():
                 set_price.delay(subscription.id)
+                set_comment.delay(subscription.id)
 
         return super().save(*args, **kwargs)
 
@@ -37,7 +37,6 @@ class Plan(models.Model):
         default=0, validators=[MaxValueValidator(100)]
     )
 
-    # correct for long save
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__discount_percent__ = self.discount_percent
@@ -46,6 +45,7 @@ class Plan(models.Model):
         if self.discount_percent != self.__discount_percent__:
             for subscription in self.subscriptions.all():
                 set_price.delay(subscription.id)
+                set_comment.delay(subscription.id)
 
         return super().save(*args, **kwargs)
 
@@ -63,15 +63,9 @@ class Subscription(models.Model):
     plan = models.ForeignKey(
         Plan, related_name="subscriptions", on_delete=models.PROTECT
     )
-    # 6 lesson testing flower
     price = models.PositiveIntegerField(default=0)
+    comment = models.CharField(max_length=50, default="")
 
-    # not correct. for first show
-    # def save(self, *args, save_model=True, **kwargs):
-    #     if save_model:
-    #         set_price.delay(self.id)
-    #
-    #     return super().save(*args, **kwargs)
-    #
     def __str__(self):
-        return f"{self.client} -> {self.service} -> {self.plan}"
+        return f"""{self.client} -> {self.service} -> {self.plan} -> 
+        {self.price} -> {self.comment}"""
