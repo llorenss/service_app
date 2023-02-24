@@ -9,6 +9,18 @@ class Service(models.Model):
     name = models.CharField(max_length=50)
     full_price = models.PositiveIntegerField()
 
+    # correct for long save
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__full_price__ = self.full_price
+
+    def save(self, *args, **kwargs):
+        if self.full_price != self.__full_price__:
+            for subscription in self.subscriptions.all():
+                set_price.delay(subscription.id)
+
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.name} {self.full_price}"
 
@@ -24,6 +36,18 @@ class Plan(models.Model):
     discount_percent = models.PositiveIntegerField(
         default=0, validators=[MaxValueValidator(100)]
     )
+
+    # correct for long save
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__discount_percent__ = self.discount_percent
+
+    def save(self, *args, **kwargs):
+        if self.discount_percent != self.__discount_percent__:
+            for subscription in self.subscriptions.all():
+                set_price.delay(subscription.id)
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.plan_type}: {self.discount_percent}%"
@@ -42,11 +66,12 @@ class Subscription(models.Model):
     # 6 lesson testing flower
     price = models.PositiveIntegerField(default=0)
 
-    def save(self, *args, save_model=True, **kwargs):
-        if save_model:
-            set_price.delay(self.id)
-
-        return super().save(*args, **kwargs)
-
+    # not correct. for first show
+    # def save(self, *args, save_model=True, **kwargs):
+    #     if save_model:
+    #         set_price.delay(self.id)
+    #
+    #     return super().save(*args, **kwargs)
+    #
     def __str__(self):
         return f"{self.client} -> {self.service} -> {self.plan}"
