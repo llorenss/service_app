@@ -30,8 +30,7 @@ class SubscriptionView(ReadOnlyModelViewSet):
     # Делаем вычисления прям в бд. Мето .annotate()
     # .F() - функция с помощью которой обращаемся к одной из полей бд
     queryset = (
-        Subscription.objects.all()
-        .prefetch_related(
+        Subscription.objects.all().prefetch_related(
             "plan",
             Prefetch(
                 "client",
@@ -40,10 +39,12 @@ class SubscriptionView(ReadOnlyModelViewSet):
                 .only("company_name", "user__email"),
             ),
         )
-        .annotate(
-            price=F("service__full_price")
-            - F("service__full_price") * F("plan__discount_percent") / 100.00
-        )
+        # temp comment annotate 6 lesson for use flower
+        # .annotate(
+        #     price=F("service__full_price")
+        #     - F("service__full_price") * F("plan__discount_percent") / 100.00
+        # )
+        # 6 lesson for use flower
     )
 
     serializer_class = SubscriptionSerializer
@@ -71,10 +72,10 @@ class SubscriptionView(ReadOnlyModelViewSet):
         queryset = self.filter_queryset((self.get_queryset()))
         response = super().list(request, *args, **kwargs)
 
-        response_data = {"result": response.data}
-        response_data["total_amount"] = queryset.aggregate(
-            total=Sum("price")
-        ).get("total")
+        response_data = {
+            "result": response.data,
+            "total_amount": queryset.aggregate(total=Sum("price")).get("total"),
+        }
         response.data = response_data
         return response
 

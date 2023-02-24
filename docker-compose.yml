@@ -34,7 +34,7 @@ services:
     build:
       context: .
     hostname: worker
-#    entrypoint: celery
+    #    entrypoint: celery
     command:
       celery -A celery_app.app worker --loglevel=info
     volumes:
@@ -43,13 +43,20 @@ services:
       - redis
     depends_on:
       - redis
+      - database
+    environment:
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
 
   flower:
     build:
       context: .
     hostname: flower
-    entrypoint: celery
-    command: -A celery_app.app flower
+    #    entrypoint: celery
+    command:
+      celery -A celery_app.app flower
     volumes:
       - ./service:/service
     links:
