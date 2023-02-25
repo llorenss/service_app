@@ -13,15 +13,15 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-cl!%ecbt%nd#(lsr5h$w5wtf8wz$*55bh)j2rg_-^0w+8&z7_8"
-)
+SECRET_KEY = "django-insecure-cl!%ecbt%nd#(lsr5h$w5wtf8wz$*55bh)j2rg_-^0w+8&z7_8"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -98,15 +98,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
 # Internationalization
@@ -135,9 +129,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     "version": 1,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "loggers": {
-        "django.db.backends": {"handlers": ["console"], "level": "DEBUG"}
-    },
+    "loggers": {"django.db.backends": {"handlers": ["console"], "level": "DEBUG"}},
 }
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+    }
+}
+
+# PRICE_CACHE_NAME = "price_cache"
