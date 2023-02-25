@@ -141,4 +141,4 @@ CACHES = {
     }
 }
 
-# PRICE_CACHE_NAME = "price_cache"
+PRICE_CACHE_NAME = "price_cache"

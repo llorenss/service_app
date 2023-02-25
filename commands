@@ -18,7 +18,6 @@ http://127.0.0.1:8000/api/subscriptions/?format=json
 flower
 http://127.0.0.1:5555/
 
-docker-compose run --rm web-app sh -c "python manage.py migrate"
 
 docker-compose run --rm web-app sh -c "python manage.py createsuperuser"
 
